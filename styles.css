@@ -1955,3 +1955,54 @@ button {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ==========================================================================
+   ARCADE SOUND TOGGLE — opt-in game-inspired audio interface
+   ========================================================================== */
+.arcade-sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 7px;
+  margin-left: 10px;
+  padding: 9px 13px;
+  min-height: 42px;
+  background: var(--white);
+  color: var(--ink);
+  font: 800 0.76rem var(--font-display);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  border: var(--stroke-thin);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+.arcade-sound-toggle[aria-pressed="true"] { background: var(--mint); }
+.arcade-sound-toggle:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow);
+}
+.arcade-sound-toggle:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.arcade-sound-toggle:focus-visible {
+  outline: 3px solid #2354f4;
+  outline-offset: 3px;
+}
+.arcade-sound-toggle .sound-symbol { font-size: 1rem; line-height: 1; }
+@media (max-width: 950px) {
+  .arcade-sound-toggle {
+    margin-left: auto;
+    margin-right: 12px;
+    padding: 8px 11px;
+  }
+  .arcade-sound-toggle .sound-label { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arcade-sound-toggle { transition: none; }
+  .arcade-sound-toggle:hover { transform: none; }
+}
