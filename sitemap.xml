@@ -1,42 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://essamadel.design/</loc>
+    <loc>https://essvm.github.io/PORTFOLIO/</loc>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://essamadel.design/projects/next-campaigns.html</loc>
+    <loc>https://essvm.github.io/PORTFOLIO/next-campaigns.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://essamadel.design/projects/matchday-design.html</loc>
+    <loc>https://essvm.github.io/PORTFOLIO/matchday-design.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://essamadel.design/projects/street-kicks.html</loc>
+    <loc>https://essvm.github.io/PORTFOLIO/street-kicks.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://essamadel.design/projects/football-editorial.html</loc>
+    <loc>https://essvm.github.io/PORTFOLIO/football-editorial.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://essamadel.design/projects/kids-collection.html</loc>
+    <loc>https://essvm.github.io/PORTFOLIO/kids-collection.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://essamadel.design/projects/visual-experiments.html</loc>
+    <loc>https://essvm.github.io/PORTFOLIO/visual-experiments.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://essamadel.design/projects/sportswear-archive.html</loc>
+    <loc>https://essvm.github.io/PORTFOLIO/sportswear-archive.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://essvm.github.io/PORTFOLIO/training-tops-editorial.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
