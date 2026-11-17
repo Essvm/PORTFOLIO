@@ -5,6 +5,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  globalThis.Portfolio?.init();
   initMobileNav();
   initProjectFilters();
   initLightbox();
@@ -48,7 +49,7 @@ function initMobileNav() {
    ------------------------------------------------------------------------- */
 function initProjectFilters() {
   const filterBtns = document.querySelectorAll('.filter-btn');
-  const projectCards = document.querySelectorAll('.project-card');
+  const projectCards = document.querySelectorAll('.project-card, .project-bar-item');
   if (!filterBtns.length || !projectCards.length) return;
 
   filterBtns.forEach(btn => {
@@ -61,7 +62,7 @@ function initProjectFilters() {
       projectCards.forEach(card => {
         const cardCategory = card.getAttribute('data-category');
         if (targetCategory === 'all' || cardCategory === targetCategory) {
-          card.style.display = 'flex';
+          card.style.display = '';
         } else {
           card.style.display = 'none';
         }
@@ -295,7 +296,7 @@ function initArcadeSounds() {
     if (enabled) play('select'); // A deliberate user click unlocks audio.
   });
 
-  const projectPages = /(?:^|\/)(?:next-campaigns|matchday-design|street-kicks|football-editorial|kids-collection|visual-experiments|sportswear-archive|training-tops-editorial)\.html$/i;
+  const projectPages = /(?:^|\/)(?:next-campaigns|matchday-design|street-kicks|football-editorial|kids-collection|visual-experiments|sportswear-archive|training-tops-editorial|fuzy-fruit-soda)\.html$/i;
 
   // Event delegation works on the home page and every project detail page.
   document.addEventListener('click', (event) => {
