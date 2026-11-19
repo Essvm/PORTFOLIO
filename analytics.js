@@ -76,5 +76,35 @@
   window.addEventListener('pagehide', pause);
   window.addEventListener('pageshow', event => { if (event.persisted) sent = false; syncVisibility(); });
   window.addEventListener('storage', event => { if (event.key === EXCLUDE) syncVisibility(); });
+  const projectFromPage = () => {
+    const id = new URLSearchParams(location.search).get('id');
+    if (location.pathname === '/PORTFOLIO/project.html' && /^[a-z0-9][a-z0-9-]{1,79}$/.test(id || '')) return id;
+    const file = location.pathname.split('/').pop();
+    return file && file !== 'index.html' && file !== 'project.html' ? file.replace('.html', '') : '';
+  };
+  const currentProject = projectFromPage();
+  if (currentProject) put(session, 'ea.analytics.lastProject', currentProject);
+  const recentActions = new Map();
+  document.addEventListener('click', event => {
+    if (excluded() || document.visibilityState !== 'visible') return;
+    const target = event.target.closest ? event.target : event.target.parentElement;
+    if (!target) return;
+    const gallery = target.closest('.gallery-image-link');
+    const link = target.closest('a');
+    let kind = gallery ? 'gallery_open' : '', channel = '';
+    if (!kind && link && (link.closest('#contact') || link.dataset.contactChannel)) {
+      const href = link.getAttribute('href') || '';
+      if (/^mailto:/i.test(href)) channel = 'email';
+      else if (/^tel:/i.test(href)) channel = 'phone';
+      else { try { const host = new URL(href).hostname.replace(/^www\./, ''); channel = host === 'instagram.com' ? 'instagram' : host === 'behance.net' ? 'behance' : ['wa.me','api.whatsapp.com','whatsapp.com'].includes(host) ? 'whatsapp' : 'other'; } catch {} }
+      if (channel) kind = 'contact_click';
+    }
+    if (!kind) return;
+    const projectId = currentProject || get(session, 'ea.analytics.lastProject') || '';
+    const key = kind + ':' + channel + ':' + projectId, now = Date.now();
+    if (now - (recentActions.get(key) || 0) < 1500) return;
+    recentActions.set(key, now);
+    try { send('/events', { event: crypto.randomUUID(), visitor: visitorId(), kind, channel, projectId, path: trackingPath }); } catch {}
+  }, true);
   syncVisibility();
 })();

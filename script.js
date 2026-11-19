@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initMobileNav();
   await globalThis.Portfolio?.load();
   globalThis.Portfolio?.init();
+  document.dispatchEvent(new Event('portfolio-ready'));
   initProjectFilters();
   initLightbox();
   initBackToTop();
@@ -364,7 +365,7 @@ function initArcadeSounds() {
 /* Load anonymous analytics on every portfolio page. */
 (function () {
   const script = document.createElement('script');
-  script.src = new URL('analytics.js?v=project-manager-1', document.currentScript.src).href;
+  script.src = new URL('analytics.js?v=studio-20261119', document.currentScript.src).href;
   script.defer = true;
   document.head.appendChild(script);
 })();
