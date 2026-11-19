@@ -4,9 +4,10 @@
  * Everything remains fully functional if JS is disabled.
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-  globalThis.Portfolio?.init();
+document.addEventListener('DOMContentLoaded', async () => {
   initMobileNav();
+  await globalThis.Portfolio?.load();
+  globalThis.Portfolio?.init();
   initProjectFilters();
   initLightbox();
   initBackToTop();
@@ -363,7 +364,7 @@ function initArcadeSounds() {
 /* Load anonymous analytics on every portfolio page. */
 (function () {
   const script = document.createElement('script');
-  script.src = new URL('analytics.js?v=presence-1', document.currentScript.src).href;
+  script.src = new URL('analytics.js?v=project-manager-1', document.currentScript.src).href;
   script.defer = true;
   document.head.appendChild(script);
 })();

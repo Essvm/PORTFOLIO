@@ -2023,3 +2023,6 @@ button {
   .arcade-sound-toggle { transition: none; }
   .arcade-sound-toggle:hover { transform: none; }
 }
+
+/* Respect hidden project sections while managed content loads. */
+[hidden] { display: none !important; }

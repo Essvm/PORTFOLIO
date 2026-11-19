@@ -1,4 +1,4 @@
-// Add a project here; all project and visual counts are derived from these image arrays.
+// Static fallback catalogue. Live projects are managed in the private dashboard.
 globalThis.PORTFOLIO_PROJECTS = [
   {
     "url": "eish-open-circle.html",

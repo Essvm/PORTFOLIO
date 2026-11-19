@@ -9,7 +9,7 @@ const pad = value => String(value).padStart(2, '0');
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const read = file => fs.readFileSync(path.join(__dirname, file), 'utf8');
 const write = (file, content) => fs.writeFileSync(path.join(__dirname, file), content);
-const versionAssets = html => html.replace(/((?:href|src)="(?:styles\.css|projects\.js|portfolio\.js))(?:\?[^"\s]*)?"/g, '$1?v=eish-20261119"');
+const versionAssets = html => html.replace(/((?:href|src)="(?:styles\.css|projects\.js|portfolio\.js|script\.js))(?:\?[^"\s]*)?"/g, '$1?v=manager-20261119"');
 
 let home = read('index.html');
 home = home.replace(/<!-- PROJECT_BARS_START -->[\s\S]*?<!-- PROJECT_BARS_END -->/, `<!-- PROJECT_BARS_START -->${render.bars(projects)}<!-- PROJECT_BARS_END -->`);
@@ -38,7 +38,7 @@ projects.forEach((project, index) => {
     return `<a href="${escape(neighbor.url)}" class="page-nav-link ${direction}"${attributes}>${label}</a>`;
   });
   page = page.replace(/  <script src="(?:projects|portfolio)\.js(?:\?[^"]*)?"><\/script>\n/g, '');
-  page = page.replace('  <script src="script.js"></script>', '  <script src="projects.js"></script>\n  <script src="portfolio.js"></script>\n  <script src="script.js"></script>');
+  page = page.replace(/  <script src="script\.js(?:\?[^"]*)?"><\/script>/, '  <script src="projects.js"></script>\n  <script src="portfolio.js"></script>\n  <script src="script.js"></script>');
   write(project.url, versionAssets(page));
 });
 

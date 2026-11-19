@@ -1,4 +1,4 @@
-/* Anonymous portfolio views and short-lived, visible-tab presence. No names, query strings or IP addresses. */
+/* Anonymous portfolio views and short-lived, visible-tab presence. No names, arbitrary query strings or IP addresses. Project IDs identify new project pages. */
 (function () {
   'use strict';
   if (window.__eaAnalyticsLoaded) return;
@@ -21,6 +21,8 @@
   const excluded = () => get(local, EXCLUDE) === '1' || navigator.doNotTrack === '1' || navigator.globalPrivacyControl === true;
   if (excluded()) return;
   if (location.origin !== 'https://essvm.github.io' || !/^\/PORTFOLIO\/(?:[a-z0-9-]+\.html)?$/.test(location.pathname)) return;
+  const projectId = params.get('id');
+  const trackingPath = location.pathname === '/PORTFOLIO/project.html' && /^[a-z0-9][a-z0-9-]{1,79}$/.test(projectId || '') ? location.pathname + '?id=' + projectId : location.pathname;
   let tab;
   try { tab = crypto.randomUUID(); } catch { return; }
   let visitor;
@@ -50,10 +52,10 @@
   function record() {
     if (sent || document.visibilityState !== 'visible' || excluded()) return;
     sent = true;
-    try { send('/track', { event: crypto.randomUUID(), visitor: visitorId(), path: location.pathname, referrer: source(), device: window.innerWidth < 768 ? 'mobile' : 'desktop' }); } catch {}
+    try { send('/track', { event: crypto.randomUUID(), visitor: visitorId(), path: trackingPath, referrer: source(), device: window.innerWidth < 768 ? 'mobile' : 'desktop' }); } catch {}
   }
   function presence(state) {
-    try { send('/presence', { visitor: visitorId(), tab, path: location.pathname, state, sequence: sequence++ }); } catch {}
+    try { send('/presence', { visitor: visitorId(), tab, path: trackingPath, state, sequence: sequence++ }); } catch {}
   }
   function pause() {
     if (timer !== null) { clearInterval(timer); timer = null; }

@@ -1,4 +1,4 @@
-/* Shared project rendering: the image arrays in projects.js are the source of truth. */
+/* Live managed catalogue, with the original project list as an offline fallback. */
 (function (root) {
   const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const pad = value => String(value).padStart(2, '0');
@@ -14,6 +14,54 @@
   function gallery(project) {
     return project.images.map((im, i) => `<div class="gallery-item${im.width / im.height > 2.2 ? ' is-panoramic' : ''}"><a href="${escape(im.src)}" class="gallery-image-link" data-caption="${escape(im.caption)}"><img src="${escape(im.src)}" alt="${escape(im.caption)}" width="${im.width}" height="${im.height}" loading="${i ? 'lazy' : 'eager'}" decoding="async"></a><div class="gallery-caption-box"><span class="gallery-caption-text">${escape(im.caption)}</span><button type="button" class="zoom-hint-btn">Enlarge ⤢</button></div></div>`).join('\n');
   }
+  const LOCAL_PREVIEW = typeof location !== 'undefined' && ['localhost', '127.0.0.1'].includes(location.hostname);
+  const CONTENT_URL = LOCAL_PREVIEW ? '/api/projects' : 'https://essam-portfolio-metrics.rubyplume16385.chatgpt.site/portfolio';
+  function allowedImage(value) {
+    try { const url = new URL(value, 'https://essvm.github.io/PORTFOLIO/'); return !url.username && !url.password && !url.search && !url.hash && ((LOCAL_PREVIEW && url.origin === location.origin && /^\/preview-media\/[a-f0-9-]{36}\.(png|jpg|webp)$/.test(url.pathname)) || (url.origin === 'https://essvm.github.io' && /^\/PORTFOLIO\//.test(url.pathname)) || (url.origin === 'https://essam-portfolio-metrics.rubyplume16385.chatgpt.site' && /^\/media\/[a-f0-9-]{36}\.(png|jpg|webp)$/.test(url.pathname))); } catch { return false; }
+  }
+  async function load() {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4500);
+    try {
+      const response = await fetch(CONTENT_URL, { cache: 'no-store', credentials: 'omit', signal: controller.signal });
+      if (!response.ok) throw Error('Content unavailable');
+      const body = await response.json();
+      if (!Array.isArray(body.projects) || body.projects.length < 1 || body.projects.length > 100) throw Error('Invalid content');
+      const ids = new Set();
+      for (const project of body.projects) {
+        if (typeof project.id !== 'string' || ids.has(project.id) || typeof project.title !== 'string' || !/^(?:[a-z0-9-]+\.html|project\.html\?id=[a-z0-9][a-z0-9-]{1,79})$/.test(project.url) || !allowedImage(project.cover) || !Array.isArray(project.images) || !project.images.length || project.images.length > 500 || !project.images.every(im => allowedImage(im.src) && Number.isInteger(im.width) && Number.isInteger(im.height) && im.width > 0 && im.height > 0)) throw Error('Invalid project');
+        ids.add(project.id);
+      }
+      root.PORTFOLIO_PROJECTS = body.projects;
+      root.PORTFOLIO_CONTENT_AVAILABLE = true;
+    } catch { root.PORTFOLIO_CONTENT_AVAILABLE = false; }
+    finally { clearTimeout(timer); }
+  }
+  function detail(project) {
+    const text = (selector, value) => { const el = document.querySelector(selector); if (el) el.textContent = value; };
+    text('.project-detail-title', project.title);
+    text('.top-ticker-content > div:first-child > span:last-child', project.title);
+    text('.project-detail-category', project.label);
+    text('.project-hero-panel .project-summary-box', project.details?.summary || project.description);
+    const tag = document.querySelector('.project-num-tag');
+    if (tag) tag.innerHTML = 'PROJECT <span data-project-number>' + pad(root.PORTFOLIO_PROJECTS.indexOf(project) + 1) + '</span> &nbsp;●&nbsp; <span data-gallery-count>' + project.images.length + '</span> VISUALS &nbsp;●&nbsp; ' + escape(project.category.toUpperCase());
+    const fields = ['brief', 'direction', 'role'];
+    document.querySelectorAll('.project-meta-grid .meta-box').forEach((el, index) => {
+      const value = project.details?.[fields[index]];
+      if (value !== undefined) { el.hidden = !value; el.querySelector('.meta-value').textContent = value; }
+    });
+    const workflow = document.querySelector('.project-disclosure-banner');
+    if (workflow && project.details) { workflow.hidden = !project.details.workflow; if (project.details.workflow) workflow.querySelector('div').textContent = project.details.workflow; }
+    const badge = document.querySelector('.project-title-row > .pill-tag');
+    if (badge) { badge.textContent = project.category.toUpperCase(); badge.className = 'pill-tag ' + project.color; }
+    document.title = project.title + ' | Essam Adel Portfolio';
+    document.querySelector('meta[name="description"]')?.setAttribute('content', project.details?.summary || project.description);
+    const metadata = { 'og:title': project.title + ' | Essam Adel', 'og:image': new URL(project.cover, location.href).href, 'og:description': project.description, 'og:url': new URL(project.url, location.href).href };
+    for (const [property, value] of Object.entries(metadata)) { let el = document.querySelector('meta[property="' + property + '"]'); if (!el) { el = document.createElement('meta'); el.setAttribute('property', property); document.head.append(el); } el.setAttribute('content', value); }
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', new URL(project.url, location.href).href);
+    document.querySelector('[data-project-loading]')?.remove();
+    document.querySelectorAll('[data-dynamic-project-content]').forEach(el => { el.hidden = false; });
+  }
   function init() {
     const projects = root.PORTFOLIO_PROJECTS;
     if (!projects) return;
@@ -28,8 +76,10 @@
     if (barList) document.querySelector('meta[property="og:description"]')?.setAttribute('content', `Bold ideas. Clear visuals. Creative work that makes brands stand out. ${totals.projects} project series across ${totals.visuals} curated visuals.`);
     const projectGallery = document.querySelector('[data-project-gallery]');
     if (projectGallery) {
-      const project = projects.find(p => p.url === projectGallery.dataset.projectGallery);
+      const dynamicId = projectGallery.dataset.projectGallery === 'dynamic' ? new URLSearchParams(location.search).get('id') : null;
+      const project = projects.find(p => dynamicId ? p.id === dynamicId : p.url === projectGallery.dataset.projectGallery);
       if (project) {
+        detail(project);
         projectGallery.innerHTML = gallery(project);
         document.querySelectorAll('[data-gallery-count]').forEach(el => { el.textContent = project.images.length; });
         const index = projects.indexOf(project);
@@ -44,10 +94,13 @@
             : `${pad(neighborIndex + 1)}. ${neighbor.navTitle || neighbor.title}`;
           link.textContent = link.hasAttribute('aria-label') ? label : previous ? `← ${label}` : `${label} →`;
         });
+      } else if (projectGallery.dataset.projectGallery === 'dynamic') {
+        const loading = document.querySelector('[data-project-loading]');
+        if (loading) loading.textContent = root.PORTFOLIO_CONTENT_AVAILABLE ? 'Project not found. Browse all selected work below.' : 'The project could not be loaded. Please refresh the page.';
       }
     }
   }
-  const api = { summary, bars, cards, gallery, init };
+  const api = { summary, bars, cards, gallery, load, init };
   root.Portfolio = api;
   if (typeof module !== 'undefined') module.exports = api;
 })(globalThis);
