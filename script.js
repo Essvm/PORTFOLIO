@@ -359,3 +359,11 @@ function initArcadeSounds() {
     }
   }, true);
 }
+
+/* Load anonymous analytics on every portfolio page. */
+(function () {
+  const script = document.createElement('script');
+  script.src = new URL('analytics.js', document.currentScript.src).href;
+  script.defer = true;
+  document.head.appendChild(script);
+})();
