@@ -978,6 +978,19 @@ button {
   transform: scale(1.04);
 }
 
+.project-card-thumb.is-panoramic {
+  aspect-ratio: 2048 / 701;
+}
+
+.project-card-thumb.is-panoramic img {
+  object-fit: contain;
+}
+
+.project-card:hover .project-card-thumb.is-panoramic img,
+.gallery-item.is-panoramic:hover .gallery-image-link img {
+  transform: none;
+}
+
 .card-overlay-badge {
   position: absolute;
   bottom: 12px;
@@ -1541,6 +1554,10 @@ button {
   flex-direction: column;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
+}
+
+.gallery-item.is-panoramic {
+  grid-column: 1 / -1;
 }
 
 .gallery-item:hover {

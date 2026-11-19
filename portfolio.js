@@ -9,10 +9,10 @@
     return projects.map((p, i) => `<a href="${escape(p.url)}" class="project-bar-item c-${escape(p.color)}" data-category="${escape(p.category)}"><div class="bar-left"><span class="bar-num">${pad(i + 1)}</span><span class="bar-title">${escape(p.title)}</span></div><div class="bar-right"><span class="bar-count-badge">${pad(p.images.length)} VISUALS</span><span class="bar-arrow">→</span></div></a>`).join('\n');
   }
   function cards(projects) {
-    return projects.map((p, i) => `<article class="project-card" data-category="${escape(p.category)}"><div class="project-card-header"><span class="card-num-pill">PROJECT ${pad(i + 1)}</span><span class="card-cat-pill">${escape(p.label)}</span></div><div class="project-card-thumb"><img src="${escape(p.cover)}" alt="${escape(p.title)}" loading="lazy"><span class="card-overlay-badge">${p.images.length} IMAGES</span></div><div class="project-card-body"><div><h3 class="project-card-title">${escape(p.title)}</h3><p class="project-card-desc">${escape(p.description)}</p></div><div class="project-card-footer"><span class="pill-tag ${escape(p.color)}">${escape(p.category)}</span><a href="${escape(p.url)}" class="card-view-btn">View Gallery (${p.images.length}) →</a></div></div></article>`).join('\n');
+    return projects.map((p, i) => `<article class="project-card" data-category="${escape(p.category)}"><div class="project-card-header"><span class="card-num-pill">PROJECT ${pad(i + 1)}</span><span class="card-cat-pill">${escape(p.label)}</span></div><div class="project-card-thumb${p.coverShape === 'panoramic' ? ' is-panoramic' : ''}"><img src="${escape(p.cover)}" alt="${escape(p.title)}" loading="lazy"><span class="card-overlay-badge">${p.images.length} IMAGES</span></div><div class="project-card-body"><div><h3 class="project-card-title">${escape(p.title)}</h3><p class="project-card-desc">${escape(p.description)}</p></div><div class="project-card-footer"><span class="pill-tag ${escape(p.color)}">${escape(p.category)}</span><a href="${escape(p.url)}" class="card-view-btn">View Gallery (${p.images.length}) →</a></div></div></article>`).join('\n');
   }
   function gallery(project) {
-    return project.images.map((im, i) => `<div class="gallery-item"><a href="${escape(im.src)}" class="gallery-image-link" data-caption="${escape(im.caption)}"><img src="${escape(im.src)}" alt="${escape(im.caption)}" width="${im.width}" height="${im.height}" loading="${i ? 'lazy' : 'eager'}" decoding="async"></a><div class="gallery-caption-box"><span class="gallery-caption-text">${escape(im.caption)}</span><button type="button" class="zoom-hint-btn">Enlarge ⤢</button></div></div>`).join('\n');
+    return project.images.map((im, i) => `<div class="gallery-item${im.width / im.height > 2.2 ? ' is-panoramic' : ''}"><a href="${escape(im.src)}" class="gallery-image-link" data-caption="${escape(im.caption)}"><img src="${escape(im.src)}" alt="${escape(im.caption)}" width="${im.width}" height="${im.height}" loading="${i ? 'lazy' : 'eager'}" decoding="async"></a><div class="gallery-caption-box"><span class="gallery-caption-text">${escape(im.caption)}</span><button type="button" class="zoom-hint-btn">Enlarge ⤢</button></div></div>`).join('\n');
   }
   function init() {
     const projects = root.PORTFOLIO_PROJECTS;
@@ -32,6 +32,18 @@
       if (project) {
         projectGallery.innerHTML = gallery(project);
         document.querySelectorAll('[data-gallery-count]').forEach(el => { el.textContent = project.images.length; });
+        const index = projects.indexOf(project);
+        document.querySelectorAll('[data-project-number]').forEach(el => { el.textContent = pad(index + 1); });
+        document.querySelectorAll('.page-nav-link.prev, .page-nav-link.next').forEach(link => {
+          const previous = link.classList.contains('prev');
+          const neighborIndex = (index + (previous ? -1 : 1) + projects.length) % projects.length;
+          const neighbor = projects[neighborIndex];
+          link.setAttribute('href', neighbor.url);
+          const label = link.hasAttribute('aria-label')
+            ? (previous ? '← Previous Project' : 'Next Project →')
+            : `${pad(neighborIndex + 1)}. ${neighbor.navTitle || neighbor.title}`;
+          link.textContent = link.hasAttribute('aria-label') ? label : previous ? `← ${label}` : `${label} →`;
+        });
       }
     }
   }
